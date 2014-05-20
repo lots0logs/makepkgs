@@ -1,6 +1,6 @@
 {
   "name": "makepkgs",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "build Arch packages in clean Docker containers",
   "bin": "makepkgs",
   "repository": {
