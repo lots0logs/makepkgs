@@ -20,7 +20,11 @@ echo "syncing repos" >&2
 pacman -Sy
 
 echo "building packages" >&2
-cd /build && PKGDEST=/packages su nobody -s /bin/sh -c 'makepkg -s --noconfirm'
+cd /build && PKGDEST=/packages su nobody -s /bin/sh -c 'makepkg -s --noconfirm' || {
+  code=$?
+  rm -rf /var/cache/pacman/*
+  exit $code
+}
 
 echo "copying packages to repo" >&2
 cp /packages/* /repo
