@@ -28,7 +28,7 @@ cp /packages/* /repo
 echo "adding packages to repo" >&2
 cd /repo && repo-add -n local.db.tar.xz *.pkg.*
 
-echo "chowning repo" >&2
-chown -R $user:$group /repo
+echo "chowning repo and cache" >&2
+chown -R $user:$group /repo /var/cache/pacman
 
 echo "done" >&2
