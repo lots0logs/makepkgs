@@ -1,0 +1,48 @@
+#!/bin/bash -e
+home="$(dirname "$(readlink -f "$0")")"
+[ -n "$PKGDEST" ] || PKGDEST="$PWD"
+
+if [ $# -eq 0 ]; then
+  echo "Usage: $0 [PACKAGE]..." >&2
+  echo >&2
+  echo "  Each package is expected to be a directory containing a PKGBUILD and supporting files." >&2
+  echo "  They are built in order, and can depend on packages that come before them." >&2
+  echo "  They are built in a fresh docker container with only base, base-devel and sudo available." >&2
+  echo "  Built packages are placed in \$PKGDEST, which defaults to the current directory." >&2
+  echo >&2
+  exit 0
+fi
+
+if ! command -v docker >/dev/null 2>&1; then
+  echo "can't find docker" >&2
+  exit 1
+fi
+
+sock="/var/run/docker.sock"
+docker="docker -H unix://$sock"
+if ! [ -S "$sock" ]; then
+  echo "can't find docker socket" >&2
+  exit 1
+fi
+
+if ! [ -w "$sock" ]; then
+  echo "don't have write permissions to docker socket" >&2
+  echo "using sudo docker" >&2
+  docker="sudo $docker"
+fi
+
+$docker build -t arch-devel "$home"
+
+tmp="$(mktemp -d)"
+trap "{ rm -rf $tmp; }" EXIT
+
+mkdir -p "$tmp/repo"
+
+for package in $@; do
+  tar cf "$tmp/package.tar" -C "$package" .
+  $docker run --rm -i -v "$home/cache:/var/cache/pacman:rw" -v "$home:/makepkgs:ro" -v "$tmp/repo:/repo:rw" -v "$tmp/package.tar:/package.tar:ro" -e user=$(id -u) -e group=$(id -g) arch-devel /makepkgs/build.sh
+  rm "$tmp/package.tar"
+done
+
+mkdir -p "$PKGDEST"
+cp -v "$tmp/repo/"*.pkg.* "$PKGDEST"

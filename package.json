@@ -1,0 +1,22 @@
+{
+  "name": "makepkgs",
+  "version": "1.0.0",
+  "description": "build Arch packages in clean Docker containers",
+  "bin": "makepkgs",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nathan7/makepkgs.git"
+  },
+  "keywords": [
+    "arch",
+    "makepkg",
+    "docker",
+    "containers"
+  ],
+  "author": "Nathan Zadoks",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nathan7/makepkgs/issues"
+  },
+  "homepage": "https://github.com/nathan7/makepkgs"
+}
