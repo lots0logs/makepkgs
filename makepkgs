@@ -41,11 +41,11 @@ mkdir -p "$tmp/repo"
 echo "Created $tmp/repo"
 mkdir -p "$tmp/cache"
 echo "Created $tmp/cache"
-
+echo "Package List: $@"
 for package in $@; do
   echo "Create tar file from ${package}"
   tar cf "$tmp/package.tar" -C "$package" .
-  $docker run -i --rm -v "$tmp/cache:/var/cache/pacman:rw" -v "$home:/makepkgs:ro" -v "$tmp/repo:/repo:rw" -v "$tmp/package.tar:/package.tar:ro" \
+  $docker run -i -t --rm -v "$tmp/cache:/var/cache/pacman:rw" -v "$home:/makepkgs:ro" -v "$tmp/repo:/repo:rw" -v "$tmp/package.tar:/package.tar:ro" \
   -e user=$(id -u) -e group=$(id -g) arch-devel /makepkgs/build.sh
   echo "Container exited."
   rm "$tmp/package.tar"
