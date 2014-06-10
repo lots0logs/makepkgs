@@ -36,17 +36,12 @@ $docker build -t arch-devel "$home"
 tmp="$(mktemp -d)"
 trap "{ rm -rf $tmp; }" EXIT
 
-echo "Temp dir created: ${tmp}"
 mkdir -p "$tmp/repo"
-echo "Created $tmp/repo"
 mkdir -p "$tmp/cache"
-echo "Created $tmp/cache"
 
 for package in $@; do
-  echo "Create tar file from ${package}"
   tar cf "$tmp/package.tar" -C "$package" .
   $docker run --rm -i -v "$tmp/cache:/var/cache/pacman:rw" -v "$home:/makepkgs:ro" -v "$tmp/repo:/repo:rw" -v "$tmp/package.tar:/package.tar:ro" -e user=$(id -u) -e group=$(id -g) arch-devel /makepkgs/build.sh
-  echo "Container exited."
   rm "$tmp/package.tar"
 done
 
